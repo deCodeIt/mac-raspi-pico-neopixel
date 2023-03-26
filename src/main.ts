@@ -18,7 +18,7 @@ const server = net.createServer((socket) => {
   // Start sending LED updates.
   const asyncFn = async () => {
     while( !socket.closed ) {
-      // await sleep( 1000 );
+      await sleep( 1000 );
       await generateNewValue( socket );
     }
   }
@@ -44,11 +44,11 @@ const numLedsRight = 65;
 
 // Set init values;
 const ss = robot.screen.capture();
-const width = 128;
+const width = 512;
 const height = Math.floor( width * ss.height / ss.width );
-const topEnd = Math.floor( height / 5 );
-const leftEnd = Math.floor( width / 5 );;
-const rightStart = Math.floor( width * 4 / 5 );
+const topEnd = Math.floor( height / 2 );
+const leftEnd = Math.floor( width / 2 );;
+const rightStart = Math.floor( width * 1 / 2 );
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
