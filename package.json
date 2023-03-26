@@ -42,6 +42,7 @@
     "get-pixels": "^3.3.3",
     "jimp": "^0.22.7",
     "probe-image-size": "^7.2.3",
+    "robotjs": "^0.6.0",
     "screenshot-desktop": "^0.0.0-development",
     "tslib": "~2.4"
   },
