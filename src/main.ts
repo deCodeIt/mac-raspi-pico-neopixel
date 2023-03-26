@@ -74,6 +74,23 @@ const processPixels = async ( pixel: number[][][] ) => {
       heightPerRightLed * ( i + 1 )
     );
   }
+
+  const finalLedColors = [
+    [ ...leftStrip ].reverse(),
+    ...topStrip,
+    ...rightStrip,
+  ];
+
+  encodeLedPixels( finalLedColors );
+}
+
+const encodeLedPixels = ( pixel: number[][] ) => {
+  let msg = 'deaddeed'; // hex init
+  for( let i = 0; i < pixel.length; i++ ) {
+    msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
+  }
+  msg += 'feedfeed';
+  console.log( 'Msg', msg );
 }
 
 // Helper function to get the average color of a grid cell
