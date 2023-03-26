@@ -8,7 +8,7 @@ import Jimp from 'jimp';
 
 // Set init values;
 const ss = robot.screen.capture();
-const width = 256;
+const width = 128;
 const height = Math.floor( width * ss.height / ss.width );
 
 // Capture a screenshot every second and process the grids
