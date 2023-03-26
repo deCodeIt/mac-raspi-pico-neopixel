@@ -8,8 +8,6 @@ import Jimp from 'jimp';
 const leftRows = 67;
 const topColumns = 110;
 const rightRows = 65;
-const leftBoundary = 0;
-const topBoundary = 0;
 const rightBoundary = 2 / 3;
 
 // Capture a screenshot every second and process the grids
@@ -53,10 +51,10 @@ setInterval(() => {
 
 // Get the aggregate color of each cell in a grid
 const getGridColors = (
-  grid: any,
+  grid: Jimp,
   cells: number,
   callback: (arr: number[][]) => void
-) => {
+): void => {
   grid.getBuffer(Jimp.MIME_PNG, (err: any, buffer: Buffer) => {
     if (err) {
       console.error(err);
