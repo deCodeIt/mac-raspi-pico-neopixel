@@ -39,7 +39,7 @@ const generateNewValue = async () => {
 
 const processPixels = async ( pixel: number[][][] ) => {
   // leftStrip
-  const leftStrip = new Array( numLedsLeft );
+  const leftStrip = new Array<number[]>( numLedsLeft );
   const heightPerLeftLed = height / numLedsLeft;
   for( let i = 0; i < numLedsLeft; i++ ) {
     leftStrip[ i ] = getAverageColor(
@@ -51,7 +51,7 @@ const processPixels = async ( pixel: number[][][] ) => {
     );
   }
   // topStrip
-  const topStrip = new Array( numLedsTop );
+  const topStrip = new Array<number[]>( numLedsTop );
   const widthPerTopLed = height / numLedsTop;
   for( let i = 0; i < numLedsTop; i++ ) {
     topStrip[ i ] = getAverageColor(
@@ -63,7 +63,7 @@ const processPixels = async ( pixel: number[][][] ) => {
     );
   }
   // rightStrip
-  const rightStrip = new Array( numLedsRight );
+  const rightStrip = new Array<number[]>( numLedsRight );
   const heightPerRightLed = height / numLedsRight;
   for( let i = 0; i < numLedsRight; i++ ) {
     rightStrip[ i ] = getAverageColor(
@@ -76,7 +76,7 @@ const processPixels = async ( pixel: number[][][] ) => {
   }
 
   const finalLedColors = [
-    [ ...leftStrip ].reverse(),
+    ...leftStrip.reverse(),
     ...topStrip,
     ...rightStrip,
   ];
