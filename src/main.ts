@@ -70,6 +70,7 @@ const generateNewValue = async ( socket: net.Socket ) => {
     imgPixels[ x ][ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
   // console.log( 'ImgPixels', imgPixels );
+  // await jimpImg.writeAsync( './myFile.png' );
   return processPixels( socket, imgPixels );
 };
 
