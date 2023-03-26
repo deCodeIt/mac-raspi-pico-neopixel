@@ -89,7 +89,7 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
   }
   // topStrip
   const topStrip = new Array<number[]>( numLedsTop );
-  const widthPerTopLed = height / numLedsTop;
+  const widthPerTopLed = width / numLedsTop;
   for( let i = 0; i < numLedsTop; i++ ) {
     topStrip[ i ] = getAverageColor(
       pixel,
