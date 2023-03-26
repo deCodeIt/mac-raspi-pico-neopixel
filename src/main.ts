@@ -2,9 +2,9 @@ import robot from 'robotjs';
 import Jimp from 'jimp';
 
 // Set the grid dimensions
-// const leftRows = 67;
-// const topColumns = 110;
-// const rightRows = 65;
+const numLedsLeft = 67;
+const numLedsTop = 110;
+const numLedsRight = 65;
 
 // Set init values;
 const ss = robot.screen.capture();
@@ -33,21 +33,33 @@ const generateNewValue = async () => {
   // console.log( 'ImgPixels', imgPixels );
 };
 
+const processPixels = async ( pixel: number[][][], width: number, height: number ) => {
+  // leftStrip
+  const leftStrip = new Array( numLedsLeft );
+  for( let i = 0; i < numLedsLeft; i++ ) {
+    // leftStrip[ i ] = getAverageColor(
+      
+    // );
+  }
+}
+
 // Helper function to get the average color of a grid cell
-// const getAverageColor = (pixels: number[]): number[] => {
-//   let r = 0;
-//   let g = 0;
-//   let b = 0;
+const getAverageColor = ( pixel: number[][][], x: number, y: number, width: number, height: number): number[] => {
+  let r = 0;
+  let g = 0;
+  let b = 0;
 
-//   for (let i = 0; i < pixels.length; i += 4) {
-//     r += pixels[i];
-//     g += pixels[i + 1];
-//     b += pixels[i + 2];
-//   }
+  for( let i = 0; i < width - x; i++ ) {
+    for( let j = 0; j < height - y; j++ ) {
+      r += pixel[i][j][0];
+      g += pixel[i][j][1];
+      b += pixel[i][j][2];
+    }
+  }
 
-//   const numPixels = pixels.length / 4;
-//   return [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
-// };
+  const numPixels = ( width - x ) * ( height - y );
+  return [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
+};
 
 const main = async () => {
   const start = new Date().getTime();
