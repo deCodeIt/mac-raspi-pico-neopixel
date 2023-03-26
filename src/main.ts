@@ -132,14 +132,14 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
 
 // Helper function to get the average color of a grid cell
 const getAverageColor = ( pixel: number[][][], x: number, y: number, xEnd: number, yEnd: number): number[] => {
-  console.log( 'getAverageColor', x, y, xEnd, yEnd );
+  // console.log( 'getAverageColor', x, y, xEnd, yEnd );
   let r = 0;
   let g = 0;
   let b = 0;
 
   for( let i = x; i < xEnd; i++ ) {
     for( let j = y; j < yEnd; j++ ) {
-      console.log( 'getAverageColor i, j', i, j );
+      // console.log( 'getAverageColor i, j', i, j );
       r += pixel[i][j][0];
       g += pixel[i][j][1];
       b += pixel[i][j][2];
@@ -148,7 +148,7 @@ const getAverageColor = ( pixel: number[][][], x: number, y: number, xEnd: numbe
 
   const numPixels = ( xEnd - x + 1 ) * ( yEnd - y + 1 );
   const avgPixel = [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
-  console.log( 'avgPixel', avgPixel );
+  // console.log( 'avgPixel', avgPixel );
   return avgPixel;
 };
 
