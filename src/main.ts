@@ -46,9 +46,9 @@ const numLedsRight = 65;
 const ss = robot.screen.capture();
 const width = 128;
 const height = Math.floor( width * ss.height / ss.width );
-const topEnd = Math.floor( height / 3 );
-const leftEnd = Math.floor( width / 3 );;
-const rightStart = Math.floor( width * 2 / 3 );
+const topEnd = Math.floor( height / 5 );
+const leftEnd = Math.floor( width / 5 );;
+const rightStart = Math.floor( width * 4 / 5 );
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
@@ -124,8 +124,8 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
 const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   let msg = 'deaddeed'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
-    // msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
-    msg += '00ff00'; // Red
+    msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
+    // msg += '00ff00'; // Red
   }
   msg += 'feedfeed';
   console.log( 'Msg', msg );
