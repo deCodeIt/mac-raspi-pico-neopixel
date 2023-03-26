@@ -26,7 +26,7 @@ const generateNewValue = async () => {
     // console.log( `(${x}, ${y}), ${idx} => ${imgPixels[ x ][ y ]}` );
     imgPixels[ x ][ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
-  console.log( 'ImgPixels', imgPixels );
+  // console.log( 'ImgPixels', imgPixels );
 };
 
 // Helper function to get the average color of a grid cell
@@ -48,7 +48,7 @@ const generateNewValue = async () => {
 const main = async () => {
   const start = new Date().getTime();
   let count = 0;
-  while( true ) {
+  while( count < 100 ) {
     count++;
     const elaspedTime = ( new Date().getTime() - start ) / 1000;
     if( elaspedTime > 0 ) {
