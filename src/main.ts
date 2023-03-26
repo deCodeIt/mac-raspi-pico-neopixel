@@ -6,14 +6,18 @@ import Jimp from 'jimp';
 // const topColumns = 110;
 // const rightRows = 65;
 
+// Set init values;
+const ss = robot.screen.capture();
+const width = 256;
+const height = Math.floor( width * ss.height / ss.width );
+
 // Capture a screenshot every second and process the grids
 const generateNewValue = async () => {
   const ss = robot.screen.capture();
   const jImg = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
-  const jimpImg = jImg.resize( 256, 256 );
-  const height = jimpImg.getHeight();
-  const width = jimpImg.getWidth();
+
+  const jimpImg = jImg.resize( width, height );
 
   // Convert Image to Pixels.
   const imgPixels: number[][][] = new Array( width );
