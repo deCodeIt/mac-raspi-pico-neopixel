@@ -1,4 +1,4 @@
-import screenshot from 'screenshot-desktop';
+import robot from 'robotjs';
 import Jimp from 'jimp';
 
 // Set the grid dimensions
@@ -8,8 +8,10 @@ import Jimp from 'jimp';
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = async () => {
-  const img = await screenshot( { format: 'png' } );
-  const jimpImg = (await Jimp.read( img )).resize( 256, 256 );
+  const ss = robot.screen.capture();
+  const jImg = new Jimp({data: ss.image, width: ss.width, height: ss.height});
+  
+  const jimpImg = jImg.resize( 256, 256 );
   const height = jimpImg.getHeight();
   const width = jimpImg.getWidth();
 
@@ -24,7 +26,7 @@ const generateNewValue = async () => {
     // console.log( `(${x}, ${y}), ${idx} => ${imgPixels[ x ][ y ]}` );
     imgPixels[ x ][ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
-  // console.log( 'ImgPixels', imgPixels );
+  console.log( 'ImgPixels', imgPixels );
 };
 
 // Helper function to get the average color of a grid cell
