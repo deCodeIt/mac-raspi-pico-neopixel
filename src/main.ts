@@ -4,12 +4,21 @@ import net from 'net';
 
 const PORT = 8080;
 
+const sleep = async ( durationInMs: number ) => {
+  return new Promise( ( resolve ) => {
+    setTimeout( () => {
+      resolve( true );
+    }, durationInMs );
+  } );
+}
+
 const server = net.createServer((socket) => {
   console.log('Client connected');
 
   // Start sending LED updates.
   const asyncFn = async () => {
     while( !socket.closed ) {
+      await sleep( 1000 );
       await generateNewValue( socket );
     }
   }
@@ -114,7 +123,7 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
 const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   let msg = 'deaddeed'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
-    msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
+    msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
   }
   msg += 'feedfeed';
   console.log( 'Msg', msg );
@@ -122,21 +131,23 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
 }
 
 // Helper function to get the average color of a grid cell
-const getAverageColor = ( pixel: number[][][], x: number, y: number, xEmd: number, yEnd: number): number[] => {
+const getAverageColor = ( pixel: number[][][], x: number, y: number, xEnd: number, yEnd: number): number[] => {
   let r = 0;
   let g = 0;
   let b = 0;
 
-  for( let i = 0; i < xEmd - x; i++ ) {
-    for( let j = 0; j < yEnd - y; j++ ) {
+  for( let i = x; i < xEnd; i++ ) {
+    for( let j = y; j < yEnd; j++ ) {
       r += pixel[i][j][0];
       g += pixel[i][j][1];
       b += pixel[i][j][2];
     }
   }
 
-  const numPixels = ( xEmd - x ) * ( yEnd - y );
-  return [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
+  const numPixels = ( xEnd - x ) * ( yEnd - y );
+  const avgPixel = [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
+  console.log( 'avgPixel', avgPixel );
+  return avgPixel;
 };
 
 // const main = async () => {
