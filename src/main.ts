@@ -1,5 +1,32 @@
 import robot from 'robotjs';
 import Jimp from 'jimp';
+import net from 'net';
+
+const PORT = 8080;
+
+const server = net.createServer((socket) => {
+  console.log('Client connected');
+
+  // Start sending LED updates.
+  const asyncFn = async () => {
+    while( !socket.closed ) {
+      await generateNewValue( socket );
+    }
+  }
+  asyncFn();
+
+  socket.on('data', (data) => {
+    console.log(`Received data: ${data}`);
+  });
+
+  socket.on('end', () => {
+    console.log('Client disconnected');
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
 
 // Set the grid dimensions
 const numLedsLeft = 67;
@@ -15,7 +42,7 @@ const leftEnd = Math.floor( width / 3 );;
 const rightStart = Math.floor( width * 2 / 3 );
 
 // Capture a screenshot every second and process the grids
-const generateNewValue = async () => {
+const generateNewValue = async ( socket: net.Socket ) => {
   const ss = robot.screen.capture();
   const jImg = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
@@ -34,10 +61,10 @@ const generateNewValue = async () => {
     imgPixels[ x ][ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
   // console.log( 'ImgPixels', imgPixels );
-  return processPixels( imgPixels );
+  return processPixels( socket, imgPixels );
 };
 
-const processPixels = async ( pixel: number[][][] ) => {
+const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
   // leftStrip
   const leftStrip = new Array<number[]>( numLedsLeft );
   const heightPerLeftLed = height / numLedsLeft;
@@ -81,16 +108,17 @@ const processPixels = async ( pixel: number[][][] ) => {
     ...rightStrip,
   ];
 
-  encodeLedPixels( finalLedColors );
+  encodeLedPixels( socket, finalLedColors );
 }
 
-const encodeLedPixels = ( pixel: number[][] ) => {
+const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   let msg = 'deaddeed'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
     msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
   }
   msg += 'feedfeed';
   console.log( 'Msg', msg );
+  socket.write( msg );
 }
 
 // Helper function to get the average color of a grid cell
@@ -111,17 +139,17 @@ const getAverageColor = ( pixel: number[][][], x: number, y: number, xEmd: numbe
   return [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
 };
 
-const main = async () => {
-  const start = new Date().getTime();
-  let count = 0;
-  while( count < 100 ) {
-    count++;
-    const elaspedTime = ( new Date().getTime() - start ) / 1000;
-    if( elaspedTime > 0 ) {
-      console.log( `Iterations / sec:  ${ Math.floor( count / elaspedTime ) }` )
-    }
-    await generateNewValue();
-  }
-};
+// const main = async () => {
+//   const start = new Date().getTime();
+//   let count = 0;
+//   while( count < 100 ) {
+//     count++;
+//     const elaspedTime = ( new Date().getTime() - start ) / 1000;
+//     if( elaspedTime > 0 ) {
+//       console.log( `Iterations / sec:  ${ Math.floor( count / elaspedTime ) }` )
+//     }
+//     await generateNewValue();
+//   }
+// };
 
-main().finally( () => console.log( 'Done!' ) );
+// main().finally( () => console.log( 'Done!' ) );
