@@ -18,7 +18,7 @@ const server = net.createServer((socket) => {
   // Start sending LED updates.
   const asyncFn = async () => {
     while( !socket.closed ) {
-      await sleep( 1000 );
+      // await sleep( 1000 );
       await generateNewValue( socket );
     }
   }
