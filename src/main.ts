@@ -81,9 +81,9 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
     leftStrip[ i ] = getAverageColor(
       pixel,
       0,
-      heightPerLeftLed * i,
+      Math.floor( heightPerLeftLed * i ),
       leftEnd,
-      heightPerLeftLed * ( i + 1 )
+      Math.floor( heightPerLeftLed * ( i + 1 ) )
     );
   }
   // topStrip
@@ -92,9 +92,9 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
   for( let i = 0; i < numLedsTop; i++ ) {
     topStrip[ i ] = getAverageColor(
       pixel,
-      widthPerTopLed * i,
+      Math.floor( widthPerTopLed * i ),
       0,
-      widthPerTopLed * ( i + 1 ),
+      Math.floor( widthPerTopLed * ( i + 1 ) ),
       topEnd
     );
   }
@@ -105,9 +105,9 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
     rightStrip[ i ] = getAverageColor(
       pixel,
       rightStart,
-      heightPerRightLed * i,
+      Math.floor( heightPerRightLed * i ),
       width,
-      heightPerRightLed * ( i + 1 )
+      Math.floor( heightPerRightLed * ( i + 1 ) )
     );
   }
 
@@ -132,19 +132,21 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
 
 // Helper function to get the average color of a grid cell
 const getAverageColor = ( pixel: number[][][], x: number, y: number, xEnd: number, yEnd: number): number[] => {
+  console.log( 'getAverageColor', x, y, xEnd, yEnd );
   let r = 0;
   let g = 0;
   let b = 0;
 
   for( let i = x; i < xEnd; i++ ) {
     for( let j = y; j < yEnd; j++ ) {
+      console.log( 'getAverageColor i, j', i, j );
       r += pixel[i][j][0];
       g += pixel[i][j][1];
       b += pixel[i][j][2];
     }
   }
 
-  const numPixels = ( xEnd - x ) * ( yEnd - y );
+  const numPixels = ( xEnd - x + 1 ) * ( yEnd - y + 1 );
   const avgPixel = [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
   console.log( 'avgPixel', avgPixel );
   return avgPixel;
