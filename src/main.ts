@@ -18,17 +18,9 @@ const server = net.createServer((socket) => {
     closed: false,
   }
 
-  // Start sending LED updates.
-  const asyncFn = async () => {
-    while( !socketStatus.closed ) {
-      await sleep( 300 );
-      await generateNewValue( socket );
-    }
-  }
-  asyncFn();
-
   socket.on('data', (data) => {
     console.log(`Received data: ${data}`);
+    generateNewValue( socket );
   });
 
   socket.on('error', ( e ) => {
@@ -53,9 +45,9 @@ const numLedsRight = 65;
 const partitionVertical = 5; // vertical lines to divide width
 const partitionsHorizontal = 5; // horizontal lines to divide height
 
-const sh_R = 8
+const sh_R = 0
 const sh_G = 16
-const sh_B = 0
+const sh_B = 8
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
