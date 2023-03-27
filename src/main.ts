@@ -44,6 +44,10 @@ const numLedsRight = 65;
 const partitionVertical = 10; // vertical lines to divide width
 const partitionsHorizontal = 10; // horizontal lines to divide height
 
+const sh_R = 8
+const sh_G = 16
+const sh_B = 0
+
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
   const ss = robot.screen.capture();
@@ -52,9 +56,9 @@ const generateNewValue = async ( socket: net.Socket ) => {
   const jImgRight = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
   // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
-  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BEZIER );
-  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BEZIER );
-  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BEZIER );
+  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_NEAREST_NEIGHBOR );
+  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_NEAREST_NEIGHBOR );
+  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_NEAREST_NEIGHBOR );
 
   // await jimpImgLeft.writeAsync( './myFileLeft.png' );
   // await jimpImgTop.writeAsync( './myFileTop.png' );
@@ -91,13 +95,15 @@ const generateNewValue = async ( socket: net.Socket ) => {
 
 const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   // console.log( 'encodeLedPixels', pixel, pixel.length );
-  let msg = 'deaddeed'; // hex init
+  let msg = 'xxx'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
     // console.log( `pixel[${i}]: ${pixel[i]}` );
-    msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
+    const pixValue = pixel[ i ][ 2 ] << sh_B | pixel[ i ][ 0 ] << sh_R | pixel[ i ][ 1 ] << sh_G;
+    // msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
+    msg += `${ i == 0 ? '' : ':' }${pixValue}`;
     // msg += '00ff00'; // Red
   }
-  msg += 'feedfeed';
-  // console.log( 'Msg', msg );
+  msg += 'yyy';
+  console.log( 'Msg', msg );
   socket.write( msg );
 };
