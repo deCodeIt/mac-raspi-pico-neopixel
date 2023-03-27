@@ -42,8 +42,8 @@ server.listen(PORT, () => {
 const numLedsLeft = 67;
 const numLedsTop = 110;
 const numLedsRight = 65;
-const partitionVertical = 3; // vertical lines to divide width
-const partitionsHorizontal = 3; // horizontal lines to divide height
+const partitionVertical = 5; // vertical lines to divide width
+const partitionsHorizontal = 6; // horizontal lines to divide height
 
 const sh_R = 0
 const sh_G = 16
@@ -57,9 +57,9 @@ const generateNewValue = async ( socket: net.Socket ) => {
   const jImgRight = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
   // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
-  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_NEAREST_NEIGHBOR );
-  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_NEAREST_NEIGHBOR );
-  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_NEAREST_NEIGHBOR );
+  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BILINEAR );
+  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BILINEAR );
+  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BILINEAR );
 
   // await jimpImgLeft.writeAsync( './myFileLeft.png' );
   // await jimpImgTop.writeAsync( './myFileTop.png' );
@@ -73,7 +73,7 @@ const generateNewValue = async ( socket: net.Socket ) => {
   } );
 
   const topStrip = new Array<number[]>( numLedsTop );
-  jimpImgTop.scan( 0, 0, numLedsTop, 1, function ( x, y, idx ) {
+  jimpImgTop.scan( 0, 1, numLedsTop, 1, function ( x, y, idx ) {
     // console.log( 'jimpImgTop', x, y );
     topStrip[ x ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
