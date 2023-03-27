@@ -56,9 +56,9 @@ const generateNewValue = async ( socket: net.Socket ) => {
   const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal );
   const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight );
 
-  await jimpImgLeft.writeAsync( './myFileLeft.png' );
-  await jimpImgTop.writeAsync( './myFileTop.png' );
-  await jimpImgRight.writeAsync( './myFileRIght.png' );
+  // await jimpImgLeft.writeAsync( './myFileLeft.png' );
+  // await jimpImgTop.writeAsync( './myFileTop.png' );
+  // await jimpImgRight.writeAsync( './myFileRIght.png' );
 
   // Convert Image to Pixels.
   const leftStrip = new Array<number[]>( numLedsLeft );
