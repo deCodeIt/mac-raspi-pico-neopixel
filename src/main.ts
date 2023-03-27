@@ -41,76 +41,38 @@ server.listen(PORT, () => {
 const numLedsLeft = 67;
 const numLedsTop = 110;
 const numLedsRight = 65;
-
-// Set init values;
-const ss = robot.screen.capture();
-const width = 512;
-const height = Math.floor( width * ss.height / ss.width );
-const topEnd = Math.floor( height / 2 );
-const leftEnd = Math.floor( width / 2 );;
-const rightStart = Math.floor( width * 1 / 2 );
+const partitionVertical = 10; // vertical lines to divide width
+const partitionsHorizontal = 10; // horizontal lines to divide height
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
   const ss = robot.screen.capture();
   const jImg = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
+  // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
+  const jimpImgLeft = jImg.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BICUBIC );
+  const jimpImgTop = jImg.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BICUBIC );
+  const jimpImgRight = jImg.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BICUBIC );
 
-  const jimpImg = jImg.resize( width, height );
+  // await jimpImgLeft.writeAsync( './myFileLeft.png' );
+  // await jimpImgTop.writeAsync( './myFileTop.png' );
+  // await jimpImgRight.writeAsync( './myFileRIght.png' );
 
   // Convert Image to Pixels.
-  const imgPixels: number[][][] = new Array( width );
-  jimpImg.scan( 0, 0, width, height, function ( x, y, idx ) {
-    // console.log( `(${x}, ${y}), ${idx}` );
-    if( y === 0 ) {
-      // Initialize array for new column.
-      imgPixels[ x ] = new Array( height );
-    }
-    // console.log( `(${x}, ${y}), ${idx} => ${imgPixels[ x ][ y ]}` );
-    imgPixels[ x ][ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
-  } );
-  // console.log( 'ImgPixels', imgPixels );
-  // await jimpImg.writeAsync( './myFile.png' );
-  return processPixels( socket, imgPixels );
-};
-
-const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
-  // leftStrip
   const leftStrip = new Array<number[]>( numLedsLeft );
-  const heightPerLeftLed = height / numLedsLeft;
-  for( let i = 0; i < numLedsLeft; i++ ) {
-    leftStrip[ i ] = getAverageColor(
-      pixel,
-      0,
-      Math.floor( heightPerLeftLed * i ),
-      leftEnd,
-      Math.floor( heightPerLeftLed * ( i + 1 ) )
-    );
-  }
-  // topStrip
+  jimpImgLeft.scan( 0, 0, 1, numLedsLeft, function ( x, y, idx ) {
+    leftStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
+  } );
+
   const topStrip = new Array<number[]>( numLedsTop );
-  const widthPerTopLed = width / numLedsTop;
-  for( let i = 0; i < numLedsTop; i++ ) {
-    topStrip[ i ] = getAverageColor(
-      pixel,
-      Math.floor( widthPerTopLed * i ),
-      0,
-      Math.floor( widthPerTopLed * ( i + 1 ) ),
-      topEnd
-    );
-  }
-  // rightStrip
+  jimpImgTop.scan( 0, 0, numLedsTop, 1, function ( x, y, idx ) {
+    topStrip[ x ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
+  } );
+
   const rightStrip = new Array<number[]>( numLedsRight );
-  const heightPerRightLed = height / numLedsRight;
-  for( let i = 0; i < numLedsRight; i++ ) {
-    rightStrip[ i ] = getAverageColor(
-      pixel,
-      rightStart,
-      Math.floor( heightPerRightLed * i ),
-      width,
-      Math.floor( heightPerRightLed * ( i + 1 ) )
-    );
-  }
+  jimpImgRight.scan( partitionVertical - 1, 0, 1, numLedsRight, function ( x, y, idx ) {
+    rightStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
+  } );
 
   const finalLedColors = [
     ...leftStrip.reverse(),
@@ -118,8 +80,9 @@ const processPixels = async ( socket: net.Socket, pixel: number[][][] ) => {
     ...rightStrip,
   ];
 
+  // console.log( 'finalLedColors', finalLedColors );
   encodeLedPixels( socket, finalLedColors );
-}
+};
 
 const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   let msg = 'deaddeed'; // hex init
@@ -130,41 +93,4 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   msg += 'feedfeed';
   console.log( 'Msg', msg );
   socket.write( msg );
-}
-
-// Helper function to get the average color of a grid cell
-const getAverageColor = ( pixel: number[][][], x: number, y: number, xEnd: number, yEnd: number): number[] => {
-  // console.log( 'getAverageColor', x, y, xEnd, yEnd );
-  let r = 0;
-  let g = 0;
-  let b = 0;
-
-  for( let i = x; i < xEnd; i++ ) {
-    for( let j = y; j < yEnd; j++ ) {
-      // console.log( 'getAverageColor i, j', i, j );
-      r += pixel[i][j][0];
-      g += pixel[i][j][1];
-      b += pixel[i][j][2];
-    }
-  }
-
-  const numPixels = ( xEnd - x + 1 ) * ( yEnd - y + 1 );
-  const avgPixel = [Math.round(r / numPixels), Math.round(g / numPixels), Math.round(b / numPixels)];
-  // console.log( 'avgPixel', avgPixel );
-  return avgPixel;
 };
-
-// const main = async () => {
-//   const start = new Date().getTime();
-//   let count = 0;
-//   while( count < 100 ) {
-//     count++;
-//     const elaspedTime = ( new Date().getTime() - start ) / 1000;
-//     if( elaspedTime > 0 ) {
-//       console.log( `Iterations / sec:  ${ Math.floor( count / elaspedTime ) }` )
-//     }
-//     await generateNewValue();
-//   }
-// };
-
-// main().finally( () => console.log( 'Done!' ) );
