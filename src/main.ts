@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
   // Start sending LED updates.
   const asyncFn = async () => {
     while( !socketStatus.closed ) {
-      await sleep( 100 );
+      await sleep( 300 );
       await generateNewValue( socket );
     }
   }
@@ -75,19 +75,19 @@ const generateNewValue = async ( socket: net.Socket ) => {
 
   // Convert Image to Pixels.
   const leftStrip = new Array<number[]>( numLedsLeft );
-  jimpImgLeft.scan( 0, 0, 1, numLedsLeft, function ( x, y, idx ) {
+  jimpImgLeft.scan( 1, 0, 1, numLedsLeft, function ( x, y, idx ) {
     // console.log( 'jimpImgLeft', x, y );
     leftStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
 
   const topStrip = new Array<number[]>( numLedsTop );
-  jimpImgTop.scan( 0, 0, numLedsTop, 1, function ( x, y, idx ) {
+  jimpImgTop.scan( 0, 1, numLedsTop, 1, function ( x, y, idx ) {
     // console.log( 'jimpImgTop', x, y );
     topStrip[ x ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
 
   const rightStrip = new Array<number[]>( numLedsRight );
-  jimpImgRight.scan( partitionVertical - 1, 0, 1, numLedsRight, function ( x, y, idx ) {
+  jimpImgRight.scan( partitionVertical - 2, 0, 1, numLedsRight, function ( x, y, idx ) {
     // console.log( 'jimpImgRight', x, y );
     rightStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
