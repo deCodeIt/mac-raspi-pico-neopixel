@@ -18,7 +18,7 @@ const server = net.createServer((socket) => {
   // Start sending LED updates.
   const asyncFn = async () => {
     while( !socket.closed ) {
-      await sleep( 1000 );
+      // await sleep( 1000 );
       await generateNewValue( socket );
     }
   }
@@ -52,9 +52,9 @@ const generateNewValue = async ( socket: net.Socket ) => {
   const jImgRight = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
   // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
-  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft );
-  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal );
-  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight );
+  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BEZIER );
+  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BEZIER );
+  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BEZIER );
 
   // await jimpImgLeft.writeAsync( './myFileLeft.png' );
   // await jimpImgTop.writeAsync( './myFileTop.png' );
