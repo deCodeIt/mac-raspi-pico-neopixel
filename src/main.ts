@@ -47,30 +47,35 @@ const partitionsHorizontal = 10; // horizontal lines to divide height
 // Capture a screenshot every second and process the grids
 const generateNewValue = async ( socket: net.Socket ) => {
   const ss = robot.screen.capture();
-  const jImg = new Jimp({data: ss.image, width: ss.width, height: ss.height});
+  const jImgLeft = new Jimp({data: ss.image, width: ss.width, height: ss.height});
+  const jImgTop = new Jimp({data: ss.image, width: ss.width, height: ss.height});
+  const jImgRight = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
   // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
-  const jimpImgLeft = jImg.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BICUBIC );
-  const jimpImgTop = jImg.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BICUBIC );
-  const jimpImgRight = jImg.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BICUBIC );
+  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft );
+  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal );
+  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight );
 
-  // await jimpImgLeft.writeAsync( './myFileLeft.png' );
-  // await jimpImgTop.writeAsync( './myFileTop.png' );
-  // await jimpImgRight.writeAsync( './myFileRIght.png' );
+  await jimpImgLeft.writeAsync( './myFileLeft.png' );
+  await jimpImgTop.writeAsync( './myFileTop.png' );
+  await jimpImgRight.writeAsync( './myFileRIght.png' );
 
   // Convert Image to Pixels.
   const leftStrip = new Array<number[]>( numLedsLeft );
   jimpImgLeft.scan( 0, 0, 1, numLedsLeft, function ( x, y, idx ) {
+    // console.log( 'jimpImgLeft', x, y );
     leftStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
 
   const topStrip = new Array<number[]>( numLedsTop );
   jimpImgTop.scan( 0, 0, numLedsTop, 1, function ( x, y, idx ) {
+    // console.log( 'jimpImgTop', x, y );
     topStrip[ x ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
 
   const rightStrip = new Array<number[]>( numLedsRight );
   jimpImgRight.scan( partitionVertical - 1, 0, 1, numLedsRight, function ( x, y, idx ) {
+    // console.log( 'jimpImgRight', x, y );
     rightStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
 
@@ -85,12 +90,14 @@ const generateNewValue = async ( socket: net.Socket ) => {
 };
 
 const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
+  // console.log( 'encodeLedPixels', pixel, pixel.length );
   let msg = 'deaddeed'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
+    // console.log( `pixel[${i}]: ${pixel[i]}` );
     msg += `${pixel[ i ][ 0 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 2 ].toString( 16 )}`;
     // msg += '00ff00'; // Red
   }
   msg += 'feedfeed';
-  console.log( 'Msg', msg );
+  // console.log( 'Msg', msg );
   socket.write( msg );
 };
