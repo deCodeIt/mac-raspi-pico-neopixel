@@ -14,10 +14,13 @@ const sleep = async ( durationInMs: number ) => {
 
 const server = net.createServer((socket) => {
   console.log('Client connected');
+  const socketStatus = {
+    closed: false,
+  }
 
   // Start sending LED updates.
   const asyncFn = async () => {
-    while( !socket.closed ) {
+    while( !socketStatus.closed ) {
       // await sleep( 1000 );
       await generateNewValue( socket );
     }
@@ -28,7 +31,13 @@ const server = net.createServer((socket) => {
     console.log(`Received data: ${data}`);
   });
 
+  socket.on('error', ( e ) => {
+    socketStatus.closed = true
+    console.log('Client error', e );
+  });
+
   socket.on('end', () => {
+    socketStatus.closed = true
     console.log('Client disconnected');
   });
 });
@@ -56,9 +65,9 @@ const generateNewValue = async ( socket: net.Socket ) => {
   const jImgRight = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   
   // Create images so that we can extract the border pixels for each led strip thereby having jimp do the heavy lifting.
-  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_BILINEAR );
-  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_BILINEAR );
-  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_BILINEAR );
+  const jimpImgLeft = jImgLeft.resize( partitionVertical, numLedsLeft, Jimp.RESIZE_NEAREST_NEIGHBOR );
+  const jimpImgTop = jImgTop.resize( numLedsTop, partitionsHorizontal, Jimp.RESIZE_NEAREST_NEIGHBOR );
+  const jimpImgRight = jImgRight.resize( partitionVertical, numLedsRight, Jimp.RESIZE_NEAREST_NEIGHBOR );
 
   // await jimpImgLeft.writeAsync( './myFileLeft.png' );
   // await jimpImgTop.writeAsync( './myFileTop.png' );
