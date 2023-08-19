@@ -2,7 +2,7 @@ import robot from 'robotjs';
 import Jimp from 'jimp';
 import net from 'net';
 
-const PORT = 8080;
+const PORT = 8181;
 
 const sleep = async ( durationInMs: number ) => {
   return new Promise( ( resolve ) => {
