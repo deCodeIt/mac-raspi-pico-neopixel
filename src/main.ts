@@ -69,7 +69,7 @@ const generateNewValue = async ( socket: net.Socket ) => {
 
   // Convert Image to Pixels.
   const leftStrip = new Array<number[]>( numLedsLeft );
-  jimpImgLeft.scan( 0, 0, 1, numLedsLeft, function ( x, y, idx ) {
+  jimpImgLeft.scan( 1, 0, 1, numLedsLeft, function ( x, y, idx ) {
     // console.log( 'jimpImgLeft', x, y );
     leftStrip[ y ] = [ this.bitmap.data[ idx + 0 ], this.bitmap.data[ idx + 1 ], this.bitmap.data[ idx + 2 ], this.bitmap.data[ idx + 3 ] ];
   } );
