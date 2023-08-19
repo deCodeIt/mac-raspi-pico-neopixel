@@ -20,7 +20,9 @@ const server = net.createServer((socket) => {
 
   socket.on('data', (data) => {
     console.log(`Received data: ${data}`);
-    generateNewValue( socket );
+    if( [ 'CONNECTED', 'DISPLAYED' ].includes ( data.toString() ) ) {
+      generateNewValue( socket );
+    }
   });
 
   socket.on('error', ( e ) => {
