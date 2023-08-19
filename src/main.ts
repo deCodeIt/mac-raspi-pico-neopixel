@@ -41,7 +41,7 @@ server.listen(PORT, () => {
 });
 
 // Set the grid dimensions
-const numLedsLeft = 67;
+const numLedsLeft = 65;
 const numLedsTop = 110;
 const numLedsRight = 65;
 const partitionVertical = 5; // vertical lines to divide width
@@ -102,7 +102,7 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
   for( let i = 0; i < pixel.length; i++ ) {
     // console.log( `pixel[${i}]: ${pixel[i]}` );
     // const pixValue = pixel[ i ][ 2 ] << sh_B | pixel[ i ][ 0 ] << sh_R | pixel[ i ][ 1 ] << sh_G;
-    const pixValue = `${pixel[ i ][ 0 ].toString( 16 ).padStart(2, '0')}${pixel[ i ][ 1 ].toString( 16 ).padStart(2, '0')}${pixel[ i ][ 2 ].toString( 16 ).padStart(2, '0')}`;
+    const pixValue = `${pixel[ i ][ 2 ].toString( 16 ).padStart(2, '0')}${pixel[ i ][ 1 ].toString( 16 ).padStart(2, '0')}${pixel[ i ][ 0 ].toString( 16 ).padStart(2, '0')}`;
     // msg += `${pixel[ i ][ 2 ].toString( 16 )}${pixel[ i ][ 1 ].toString( 16 )}${pixel[ i ][ 0 ].toString( 16 )}`;
     msg += `${ i == 0 ? '' : ':' }${pixValue}`;
     // msg += '00ff00'; // Red
