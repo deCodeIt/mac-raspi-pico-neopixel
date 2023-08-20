@@ -21,9 +21,7 @@ const server = net.createServer((socket) => {
   socket.on('data', (data) => {
     console.log(`Received data: ${data}`);
     if( [ 'CONNECTED', 'DISPLAYED' ].includes ( data.toString() ) ) {
-      while( !socketStatus.closed ) {
-        generateNewValue( socket );
-      }
+      startCapture( socket );
     }
   });
 
@@ -52,6 +50,15 @@ const partitionsHorizontal = 6; // horizontal lines to divide height
 const sh_R = 0
 const sh_G = 16
 const sh_B = 8
+
+const startCapture = ( socket: net.Socket ) => {
+  let i = 1;
+  while( !socket.closed ) {
+    i++;
+    console.log( 'generateNewValue', i );
+    generateNewValue( socket );
+  }
+}
 
 // Capture a screenshot every second and process the grids
 const generateNewValue = ( socket: net.Socket ) => {
