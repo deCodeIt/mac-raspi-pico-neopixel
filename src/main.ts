@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
   socket.on('data', (data) => {
     console.log(`Received data: ${data}`);
     if( [ 'CONNECTED', 'DISPLAYED' ].includes ( data.toString() ) ) {
-      while( true ) {
+      while( !socketStatus.closed ) {
         generateNewValue( socket );
       }
     }
