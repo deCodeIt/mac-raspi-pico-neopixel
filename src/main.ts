@@ -1,6 +1,9 @@
 import robot from 'robotjs';
 import Jimp from 'jimp';
 import net from 'net';
+import { SerialPort } from 'serialport'
+
+const port = new SerialPort({ path: '/dev/cu.usbmodem14201', baudRate: 9600, stopBits: 1, parity: 'even', autoOpen: true })
 
 const PORT = 8181;
 
@@ -11,34 +14,6 @@ const sleep = async ( durationInMs: number ) => {
     }, durationInMs );
   } );
 }
-
-const server = net.createServer((socket) => {
-  console.log('Client connected');
-  const socketStatus = {
-    closed: false,
-  }
-
-  socket.on('data', (data) => {
-    console.log(`Received data: ${data}`);
-    if( [ 'CONNECTED', 'DISPLAYED' ].includes ( data.toString() ) ) {
-      generateNewValue( socket );
-    }
-  });
-
-  socket.on('error', ( e ) => {
-    socketStatus.closed = true
-    console.log('Client error', e );
-  });
-
-  socket.on('end', () => {
-    socketStatus.closed = true
-    console.log('Client disconnected');
-  });
-});
-
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
 
 // Set the grid dimensions
 const numLedsLeft = 65;
@@ -52,7 +27,7 @@ const sh_G = 16
 const sh_B = 8
 
 // Capture a screenshot every second and process the grids
-const generateNewValue = async ( socket: net.Socket ) => {
+const generateNewValue = () => {
   const ss = robot.screen.capture();
   const jImgLeft = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   const jImgTop = new Jimp({data: ss.image, width: ss.width, height: ss.height});
@@ -93,10 +68,10 @@ const generateNewValue = async ( socket: net.Socket ) => {
   ];
 
   // console.log( 'finalLedColors', finalLedColors );
-  encodeLedPixels( socket, finalLedColors );
+  encodeLedPixels( finalLedColors );
 };
 
-const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
+const encodeLedPixels = ( pixel: number[][] ) => {
   // console.log( 'encodeLedPixels', pixel, pixel.length );
   let msg = 'deaddeed'; // hex init
   for( let i = 0; i < pixel.length; i++ ) {
@@ -107,7 +82,40 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
     msg += `${ i == 0 ? '' : ':' }${pixValue}`;
     // msg += '00ff00'; // Red
   }
-  msg += 'feedfeed';
-  console.log( 'Msg', msg );
-  socket.write( msg );
+  msg += 'feedfeed\r';
+  // console.log( 'Msg', msg );
+  port.write(msg, (err) => {
+    if (err) {
+      console.error('Error writing data:', err.message);
+      return;
+    }
+
+    // console.log('Data sent');
+  });
 };
+
+port.on('open', () => {
+  console.log('Serial port is open');
+  generateNewValue();
+
+  // const data = 'data\r';
+  // port.write(data, (err) => {
+  //   if (err) {
+  //     console.error('Error writing data:', err.message);
+  //     return;
+  //   }
+
+  //   console.log('Data sent:', data);
+  // });
+});
+
+port.on('data', (chunk) => {
+  const message = chunk.toString().trim();
+  // console.log('Received:', message);
+  generateNewValue();
+  // port.close(); // Close the port after receiving data
+});
+
+port.on('error', (err) => {
+  console.error('Error opening port:', err.message);
+});

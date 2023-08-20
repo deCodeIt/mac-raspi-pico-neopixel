@@ -44,6 +44,7 @@
     "probe-image-size": "^7.2.3",
     "robotjs": "^0.6.0",
     "screenshot-desktop": "^0.0.0-development",
+    "serialport": "^11.0.1",
     "tslib": "~2.4"
   },
   "volta": {
