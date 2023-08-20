@@ -110,6 +110,6 @@ const encodeLedPixels = ( socket: net.Socket, pixel: number[][] ) => {
     // msg += '00ff00'; // Red
   }
   msg += 'feedfeed';
-  console.log( 'Msg', msg );
+  // console.log( 'Msg', msg );
   socket.write( msg );
 };
