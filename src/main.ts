@@ -54,7 +54,7 @@ const sh_G = 16
 const sh_B = 8
 
 // Capture a screenshot every second and process the grids
-const generateNewValue = async ( socket: net.Socket ) => {
+const generateNewValue = ( socket: net.Socket ) => {
   const ss = robot.screen.capture();
   const jImgLeft = new Jimp({data: ss.image, width: ss.width, height: ss.height});
   const jImgTop = new Jimp({data: ss.image, width: ss.width, height: ss.height});
