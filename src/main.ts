@@ -51,12 +51,13 @@ const sh_R = 0
 const sh_G = 16
 const sh_B = 8
 
-const startCapture = ( socket: net.Socket ) => {
+const startCapture = async ( socket: net.Socket ) => {
   let i = 1;
   while( !socket.closed ) {
     i++;
     console.log( 'generateNewValue', i );
     generateNewValue( socket );
+    await sleep( 100 );
   }
 }
 
